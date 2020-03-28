@@ -1,38 +1,63 @@
 // 1. Submit the form, only if it is valid
 //    email is between 5 and 50 chars long
-//    email format is correct
-//    name has 0 or 2 whitespaces benween words
-//    name length is 1 or more chars
 //    phone length is 12 or more digits
-//    phone format is correct. Valid formats: "+38032 000 000 00", "+380(32) 000 000 00", "+380(32)-000-000-00", "0380(32) 000 000 00", + any combitaion
 //    message is 10 or more characters.
-//    message must not iclude bad language: ugly, dumm, stupid, pig, ignorant
 // 2. Validate each input on the fly using onchange event
-// 3. Define re-usable validators: length, format,  
+// 3. Define re-usable validators: length, format,
+
+function phoneValidation(numberErrors, numberNode) {
+  if (numberNode.value < 12) {
+    numberErrors.appendChild(createError('Number is too short'));
+  }
+
+  if (!numberNode.value.match(/^[+0]\d{3}[(]?\d{2}[)]?[\s\-]\d{3}([\s\-]\d{2}){2}$/)) {
+    numberErrors.appendChild(createError('Phone number is invalid'));
+  }
+
+  return numberErrors;
+}
+
+FuckYou = 3;
+
+var functionsValidation = {
+  'phone': phoneValidation,
+  'email': emailValidation,
+  'message': messageValidation,
+  'name': nameValidation
+};
+
+function makeErrors(event, element) {
+
+  const Node = event.target.elements[element];
+  const ErrorNode = Node.parentNode.querySelector('p.help-block');
+  ErrorNode.innerHTML = '';
+
+  let Errors = document.createElement('ul');
+  Errors.setAttribute("role", "alert");
+
+  Errors = functionsValidation[element](Errors, Node);
+
+  if (Errors.childElementCount > 0) {
+    ErrorNode.appendChild(Errors)
+  }
+
+}
+
+
+function createError(message) {
+  let li = document.createElement('li');
+  li.innerText = message;
+  return li;
+}
+
+
 function validateMe(event) {
   event.preventDefault();
 
-  const emailNode = event.target.elements['email'];
-  const emailErrorNode = emailNode.parentNode.querySelector('p.help-block')
-  emailErrorNode.innerHTML = '';
+  let eventEntries = event.target.elements.entries();
 
-  let emailErrors = document.createElement('ul');
-  emailErrors.setAttribute("role", "alert");
-
-  if (emailNode.value.length < 5 ) {
-    let li = document.createElement('li');
-    li.innerText = 'Email is too short';
-    emailErrors.appendChild(li)
-  }
-
-  if (!emailNode.value.match(/^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/)) {
-    let li = document.createElement('li');
-    li.innerText = 'Email format is incorrect';
-    emailErrors.appendChild(li)
-  }
-
-  if (emailErrors.childElementCount > 0) {
-    emailErrorNode.appendChild(emailErrors)
+  for (let i = 0; i <= event.target.elements.length; i++) {
+    makeErrors(event, eventEntries[i]);
   }
 
   return false;
