@@ -88,22 +88,29 @@ function makeErrors(node, element, format, length) {
   Errors = functionsValidation[element](Errors, node.value, format, length);
 
   if (Errors.childElementCount > 0) {
-    ErrorNode.appendChild(Errors)
+    ErrorNode.appendChild(Errors);
+    return true;
   }
+  return false;
 
 }
 
 
 function validateMe(event) {
-  event.preventDefault();
+  let haveErrors = false;
 
   const eventEntries = Object.entries(functionsValidation);
   for (let i = 0; i < eventEntries.length; i++) {
     let element = eventEntries[i][0];
-    makeErrors(event.target.elements[element], element, formats[element], lengths[element]);
+    if (makeErrors(event.target.elements[element], element, formats[element], lengths[element])) {
+      haveErrors = true;
+    }
+  }
+  if (haveErrors) {
+    return false;
   }
 
-  return false;
+  event.target.submit();
 }
 
 
